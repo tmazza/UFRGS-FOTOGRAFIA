@@ -21,24 +21,24 @@ with Raw(filename='a.CR2') as raw:
   img_g[2::2, 2::2] = (img_g[2::2, 1:-2:2] + img_g[2::2, 3::2] + img_g[1:-2:2, 2::2] + img_g[3::2, 2::2]) / 4.
   img_g[1:-1:2, 1:-1:2] = (img_g[1:-1:2, :-3:2] + img_g[1:-1:2, 2::2] + img_g[:-2:2, 1:-1:2] + img_g[2::2, 1:-1:2]) / 4.
 
-  plt.axis('off')
-  plt.imshow(img_r/16, cmap='Reds')
-  plt.show()
+  # plt.axis('off')
+  # plt.imshow(img_r/16, cmap='Reds')
+  # plt.show()
   
-  plt.axis('off')
-  plt.imshow(img_g/16, cmap='Greens')
-  plt.show()
+  # plt.axis('off')
+  # plt.imshow(img_g/16, cmap='Greens')
+  # plt.show()
 
-  plt.axis('off')
-  plt.imshow(img_b/16, cmap='Blues')
-  plt.show()
+  # plt.axis('off')
+  # plt.imshow(img_b/16, cmap='Blues')
+  # plt.show()
 
-  # rw = m[200][1200]
-  # gw = img_g[200][1200]
-  # bw = img_b[200][1200]
-  # print("R", rw);
-  # print("G", gw);
-  # print("B", bw);
+  rw = img_r[200][1200]
+  gw = img_g[200][1200]
+  bw = img_b[200][1200]
+  print("R", rw);
+  print("G", gw);
+  print("B", bw);
 
   # Composição das cores + white balance + gamma correction
   # mgb = [[[] for x in range(cols)] for y in range(rows)]
