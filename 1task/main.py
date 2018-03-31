@@ -37,8 +37,6 @@ with Raw(filename='a.CR2') as raw:
 
   print("Decorrido", time.time() - start_time, "seg")
 
-  print("Decorrido", time.time() - start_time, "seg")
-
   plt.axis('off')
   plt.imshow(img_rgb)
   plt.show()
