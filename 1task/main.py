@@ -1,6 +1,9 @@
+import time
 import matplotlib.pyplot as plt
 import numpy as np
 from rawkit.raw import Raw
+
+start_time = time.time()
 
 with Raw(filename='a.CR2') as raw:
   # valores pixel de 12 bits - 0~4096
@@ -116,6 +119,8 @@ with Raw(filename='a.CR2') as raw:
   # plt.axis('off')
   # plt.imshow(img_g, cmap='Greens')
   # plt.show()
+
+  print("Decorrido", time.time() - start_time, "seg")
 
   plt.axis('off')
   plt.imshow(img_rgb)
