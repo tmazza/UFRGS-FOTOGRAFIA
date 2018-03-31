@@ -7,11 +7,17 @@ with Raw(filename='a.CR2') as raw:
   img_raw, color_array_scheme = raw.bayer_data()
   img_raw = np.array(img_raw);
 
-  m = np.copy(img_raw);
-  m[1:-1:2, ::2] = (m[:-2:2, ::2] + m[2::2, ::2]) / 2.
-  m[::2, 1:-1:2] = (m[::2, :-2:2] + m[::2, 2::2]) / 2.
-  m[1:-1:2, 1:-1:2] = (m[1:-1:2, :-2:2] + m[1:-1:2, 2::2]) / 2.
+  img_r = np.copy(img_raw);
+  img_r[1:-1:2, ::2] = (img_r[:-2:2, ::2] + img_r[2::2, ::2]) / 2.
+  img_r[::2, 1:-1:2] = (img_r[::2, :-2:2] + img_r[::2, 2::2]) / 2.
+  img_r[1:-1:2, 1:-1:2] = (img_r[1:-1:2, :-2:2] + img_r[1:-1:2, 2::2]) / 2.
 
+  img_b = np.copy(img_raw);
+  img_b[2::2, 1::2] = (img_b[1:-2:2, 1::2] + img_b[3::2, 1::2]) / 2.
+  img_b[1::2, 2::2] = (img_b[1::2, 1:-2:2] + img_b[1::2, 3::2]) / 2.
+  img_b[2::2, 2::2] = (img_b[2::2, 1:-2:2] + img_b[2::2, 3::2]) / 2.
+
+  print(img_b)
 
   # interpola
   # for i in range(2, rows+2):
@@ -73,19 +79,19 @@ with Raw(filename='a.CR2') as raw:
   #     img_g[i-2][j-2] = g / 4096
  
 
-  print(m/16)
+  # print(img_r/16)
 
-  plt.axis('off')
-  plt.imshow(m/16, cmap='Reds')
-  plt.show()
+  # plt.axis('off')
+  # plt.imshow(img_r/16, cmap='Reds')
+  # plt.show()
   
   # plt.axis('off')
   # plt.imshow(img_g, cmap='Greens')
   # plt.show()
 
-  # plt.axis('off')
-  # plt.imshow(img_b, cmap='Blues')
-  # plt.show()
+  plt.axis('off')
+  plt.imshow(img_b, cmap='Blues')
+  plt.show()
 
   # rw = m[200][1200]
   # gw = img_g[200][1200]
