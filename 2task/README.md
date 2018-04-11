@@ -1,6 +1,6 @@
 ## Description
 
-Demosaicing, white-balance and gama correction.
+LDR images to HDR. Global tone mapping.
 
 ## Install
 
