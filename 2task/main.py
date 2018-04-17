@@ -5,64 +5,150 @@ from PIL import Image
 
 import sys
 
+images = [
+  { 'file': 'images/office_1.jpg', 'exposure': 0.0333,
+    'r': False, 'g': False, 'b': False },
+  { 'file': 'images/office_2.jpg', 'exposure': 0.1,
+    'r': False, 'g': False, 'b': False },
+  { 'file': 'images/office_3.jpg', 'exposure': 0.333,
+    'r': False, 'g': False, 'b': False },
+  { 'file': 'images/office_4.jpg', 'exposure': 0.5,
+    'r': False, 'g': False, 'b': False },
+  { 'file': 'images/office_5.jpg', 'exposure': 1,
+    'r': False, 'g': False, 'b': False },
+  { 'file': 'images/office_6.jpg', 'exposure': 4,
+    'r': False, 'g': False, 'b': False },
+]
+
+
 # Carrega curva
-file = open('curvas/curve1.m')
+curveFile = 'curvas/curveC.m'
+file = open(curveFile)
 curva_r = np.zeros(256)
 curva_g = np.zeros(256)
 curva_b = np.zeros(256)
 
 i = 0
 for line in file:
-  r, g, b = line.split(" ")
-  curva_r[i] = r
-  curva_g[i] = g
-  curva_b[i] = b
+  a, b, c = line.split(" ")
+  curva_r[i] = float(a)
+  curva_g[i] = float(b)
+  curva_b[i] = float(c)
   i+=1
 
-# Valor pixel linearizado - gamaa decoding
-im = Image.open("images/office_1.jpg")
-pix = im.load()
-width, height = im.size
+curva_r = np.exp(curva_r)
+curva_g = np.exp(curva_g)
+curva_b = np.exp(curva_b)
 
-r = np.zeros((width, height))
-g = np.zeros((width, height))
-b = np.zeros((width, height))
-
-for i in range(0, width):
-  for j in range(0, height):
-    r[i, j], g[i, j], b[i, j] = pix[i, j]
-
-r = 255 * np.power(r/255, 2.2)
-g = 255 * np.power(g/255, 2.2)
-b = 255 * np.power(b/255, 2.2)
-
-# Cálculo irradiância
-# TODO: melhorar existem somente 256 valores possíveis salvar mapeamentos
-def index_response_curve(exposure_value, curve):
-  for i in range(1, len(curve)):
-    if(curve[i] > exposure_value):
-      curr = abs(exposure_value - curve[i])
-      prev = abs(exposure_value - curve[i-1])
-      return i if(curr < prev) else i-1
-  return 255
-
-for i in range(0, width):
-  for j in range(0, height):
-    r[i, j] = index_response_curve(r[i, j], curva_r)
-    g[i, j] = index_response_curve(g[i, j], curva_g)
-    b[i, j] = index_response_curve(b[i, j], curva_b)
-
-r = np.exp(r) / 0.03
-g = np.exp(g) / 0.03
-b = np.exp(b) / 0.03
-
-print(r.min())
-print(r.max())
-
-# rgb = np.stack([r, g, b], axis=2)
-
-# print(rgb)
-
-# plt.axis('off')
-# plt.imshow(rgb)
+# plt.plot(curva_r, range(0, 256), color="red")
+# plt.plot(curva_g, range(0, 256), color="green")
+# plt.plot(curva_b, range(0, 256), color="blue")
 # plt.show()
+
+
+for img in range(0, len(images)):
+  
+  # Valor pixel linearizado - gamaa decoding
+  im = Image.open(images[img]['file'])
+  width, height = im.size
+  pix = im.load()
+
+  Er = np.zeros((width, height))
+  Eg = np.zeros((width, height))
+  Eb = np.zeros((width, height))
+
+  for i in range(0, width):
+    for j in range(0, height):
+      r, g, b = im.getpixel((i, j))
+      r = int(255 * ((r/255)**2.2))
+      g = int(255 * ((g/255)**2.2))
+      b = int(255 * ((b/255)**2.2))
+      pix[i, j] = (r, g, b) # sem gamma enconding
+
+      Er[i, j] = curva_r[r] / images[img]['exposure'];
+      Eg[i, j] = curva_g[g] / images[img]['exposure'];
+      Eb[i, j] = curva_b[b] / images[img]['exposure'];
+
+      # print(Er[i, j], Eg[i, j], Eb[i, j])
+
+  images[img]['r'] = Er;
+  images[img]['g'] = Eg;
+  images[img]['b'] = Eb;
+
+  print(images[img]['file'], '- ok')
+
+
+# print(images[0]['r'])
+# print(min(images[0]['r']), max(images[0]['r']))
+# def ajusta_np(M):
+#   return np.fliplr(np.rot90(np.rot90(np.rot90(M))))
+# for k in range(0, len(images)):
+#   images[k]['r'] = ajusta_np(images[k]['r'])
+#   images[k]['g'] = ajusta_np(images[k]['g'])
+#   images[k]['b'] = ajusta_np(images[k]['b'])
+
+vmin = 0.01
+vmax = 10
+
+hdr_r = np.zeros((width, height))
+hdr_g = np.zeros((width, height))
+hdr_b = np.zeros((width, height))
+
+for i in range(0, width):
+  for j in range(0, height):
+    r = []
+    g = []
+    b = []
+    for k in range(0, len(images)):    
+      val_r = images[k]['r'][i, j]
+      if(val_r < vmax and val_r > vmin):
+        r.append(val_r)
+      
+      val_g = images[k]['g'][i, j]
+      if(val_g < vmax and val_g > vmin):
+        g.append(val_g) 
+      
+      val_b = images[k]['b'][i, j]
+      if(val_b < vmax and val_b > vmin):
+        b.append(val_b) 
+
+    hdr_r[i, j] = sum(r) / len(r)
+    hdr_g[i, j] = sum(g) / len(g)
+    hdr_b[i, j] = sum(b) / len(b)
+
+#
+delta = 0.0000000000001
+average_lum = 0;
+for i in range(0, width):
+  for j in range(0, height):
+    L = 0.299*hdr_r[i, j] + 0.587*hdr_g[i, j] + 0.114*hdr_b[i, j]
+    average_lum += np.log(L + delta)
+
+N = width * height
+average_lum = np.exp( average_lum / N )
+
+result = Image.open('result.png')
+pix = result.load()
+for i in range(0, width):
+  for j in range(0, height):
+    pix[i, j] = (255, 255, 255)
+
+pixel_lum = np.copy(hdr_r)
+for i in range(0, width):
+  for j in range(0, height):
+    L = 0.299*hdr_r[i, j] + 0.587*hdr_g[i, j] + 0.114*hdr_b[i, j]
+    L = (0.18/average_lum) * L
+    L = (L / (1 + L))
+
+    r = L * ( ( (hdr_r[i, j] * .35) /L)**(1/2.2) )
+    g = L * ( ( (hdr_g[i, j] * .35) /L)**(1/2.2) )
+    b = L * ( ( (hdr_b[i, j] * .35) /L)**(1/2.2) )
+
+    r = int( r * 255 )
+    g = int( g * 255 )
+    b = int( b * 255 )
+
+    pix[i, j] = (r, g, b)
+
+result.show()
+result.save('result.png')
