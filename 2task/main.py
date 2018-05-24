@@ -45,7 +45,6 @@ curva_b = np.exp(curva_b)
 # plt.plot(curva_b, range(0, 256), color="blue")
 # plt.show()
 
-
 for img in range(0, len(images)):
   
   # Valor pixel linearizado - gamaa decoding
