@@ -1,0 +1,14 @@
+A = imread('./cameraman.tif');
+F = fft2(double(A));
+
+for i = 1:256
+    F(i, 1) = 0;
+    F(1, 
+end
+
+
+
+I = ifft2(F);
+
+subplot(1, 2, 1), imshow(A, []), title("Original");
+subplot(1, 2, 2), imshow(I, []), title("Reconstrução");
