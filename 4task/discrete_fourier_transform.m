@@ -8,7 +8,8 @@ function F = discrete_fourier_transform(A)
         sum = 0;
         for x = 0:M-1
           for y = 0:N-1
-            sum = sum + A(x+1, y+1) * (e^(-1i*2*pi*( (u*x)/M + (v*y)/N )));
+            theta = 2*pi*( (u*x)/M + (v*y)/N );
+            sum = sum + A(x+1, y+1) * (cos(theta) - 1i*sin(theta));
           end
         end
         F(u+1, v+1) = sum;
